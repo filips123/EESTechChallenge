@@ -1,15 +1,11 @@
+from datetime import datetime
+
+import holidays
+import pandas as pd
 import requests
 import torch
 import torch.nn as nn
-import torch.optim as optim
-import pandas as pd
-from sklearn.preprocessing import StandardScaler
-from sklearn.model_selection import train_test_split
-from sklearn.metrics import mean_squared_error
 from joblib import load
-import holidays
-from datetime import datetime
-
 
 """Root ARSO API URL"""
 ARSO = "https://www.vreme.si/api/1.0/location/?location="
@@ -23,6 +19,12 @@ LOCATIONS = (
     ("storzic", 1, "Kranj", "Storžič"),
     ("vrsic", 1, "Vr%C5%A1i%C4%8D", "Vršič"),
 )
+
+
+# Grafana Auth
+GRAFANA_URL = "https://influx-prod-24-prod-eu-west-2.grafana.net/api/v1/push/influx/write"
+GRAFANA_USER = "1513333"
+GRAFANA_PASS = "glc_eyJvIjoiMTA5NDExNiIsIm4iOiJwcmVkaWN0aW9ucy1kZXYiLCJrIjoiNjhnYmxNMGxZRTROMWg1UUcxSjY5SzRUIiwibSI6eyJyIjoicHJvZC1ldS13ZXN0LTIifX0="
 
 
 # Model features and target
@@ -81,6 +83,8 @@ model = HikerPredictor(input_size, hidden_size_1, hidden_size_2, output_size)
 
 
 for name, revision, url, display in LOCATIONS:
+    today = int(datetime.now().timestamp())
+
     # Get forecast from ARSO
     forecast = requests.get(ARSO + url).json()["forecast3h"]["features"][0]["properties"]["days"]
     results = {}
@@ -129,3 +133,10 @@ for name, revision, url, display in LOCATIONS:
         results[day["date"]] = int(predicted)
 
     print(display, results)
+
+    # Upload predictions to Grafana
+    for date, result in results.items():
+        timestamp = int(datetime.fromisoformat(date).timestamp())
+        body = f"hikersCount,location={display},generated={today} count={result} {timestamp}"
+        print(body)
+        requests.post(GRAFANA_URL, data=body, headers={"Content-Type": "text/plain"}, auth=(GRAFANA_USER, GRAFANA_PASS))
