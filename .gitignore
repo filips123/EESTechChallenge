@@ -110,3 +110,5 @@ web_modules/
 
 # Do not ignore .gitkeep files
 !.gitkeep
+
+config.py

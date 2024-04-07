@@ -1,0 +1,6 @@
+INFLUX_URL = "YOUR-URL-HERE"
+INFLUX_PASS = "YOUR-TOKEN-HERE"
+INFLUX_ORG = "YOUR-ORG-HERE"
+INFLUX_BUCKET = "Predictions"
+
+# Rename to config.py
