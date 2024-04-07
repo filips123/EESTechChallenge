@@ -25,7 +25,7 @@ LOCATIONS = (
 INFLUX_URL = "https://eu-central-1-1.aws.cloud2.influxdata.com/api/v2/write"
 INFLUX_PASS = "G08mLIh5-rL0OVBA9H20IgUQ7UZXRMKbj6f8XMaaVnfqRBpoEjeTvGIaHzfnRR50j6hKv-lxYGH7KszRdHfVRg=="
 INFLUX_ORG = "3b32e5cf87c07aef"
-INFLUX_BUCKET = "Hikers"
+INFLUX_BUCKET = "Predictions"
 
 
 # Model features and target
