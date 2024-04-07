@@ -22,9 +22,10 @@ LOCATIONS = (
 
 
 # Grafana Auth
-GRAFANA_URL = "https://influx-prod-24-prod-eu-west-2.grafana.net/api/v1/push/influx/write"
-GRAFANA_USER = "1513333"
-GRAFANA_PASS = "glc_eyJvIjoiMTA5NDExNiIsIm4iOiJwcmVkaWN0aW9ucy1kZXYiLCJrIjoiNjhnYmxNMGxZRTROMWg1UUcxSjY5SzRUIiwibSI6eyJyIjoicHJvZC1ldS13ZXN0LTIifX0="
+INFLUX_URL = "https://eu-central-1-1.aws.cloud2.influxdata.com/api/v2/write"
+INFLUX_PASS = "G08mLIh5-rL0OVBA9H20IgUQ7UZXRMKbj6f8XMaaVnfqRBpoEjeTvGIaHzfnRR50j6hKv-lxYGH7KszRdHfVRg=="
+INFLUX_ORG = "3b32e5cf87c07aef"
+INFLUX_BUCKET = "Hikers"
 
 
 # Model features and target
@@ -134,9 +135,15 @@ for name, revision, url, display in LOCATIONS:
 
     print(display, results)
 
-    # Upload predictions to Grafana
+    # Upload predictions to Influx
     for date, result in results.items():
         timestamp = int(datetime.fromisoformat(date).timestamp())
-        body = f"hikersCount,location={display},generated={today} count={result} {timestamp}"
-        print(body)
-        requests.post(GRAFANA_URL, data=body, headers={"Content-Type": "text/plain"}, auth=(GRAFANA_USER, GRAFANA_PASS))
+
+        data = f"hikers,location={name},generated={today} count={result} {timestamp}"
+        headers = {"Authorization": f"Token {INFLUX_PASS}"}
+        params = {"org": INFLUX_ORG, "bucket": INFLUX_BUCKET, "precision": "s"}
+
+        response = requests.post(INFLUX_URL, data=data, headers=headers, params=params)
+
+        print(data)
+        print(response.status_code, response.text)
